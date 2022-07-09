@@ -1,28 +1,44 @@
-import { PropTypes } from 'prop-types';
-
 import { useState } from 'react';
+
+// import { connect } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
 import s from './ContactForm.module.css';
 
-const ContactForm = ({ addContact }) => {
+import { Notify } from 'notiflix';
+
+import { addContact } from 'redux/contacts/actions';
+import { getContactsList } from 'redux/contacts/selectors';
+
+const ContactForm = () => {
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  const handleSubmit = evt => {
+  const dispatch = useDispatch();
+
+  const contacts = useSelector(getContactsList);
+
+  const onAddNewContact = evt => {
     evt.preventDefault();
 
-    addContact(name, number);
+    if (
+      contacts.find(
+        contact => contact.name.toLowerCase() === name.toLowerCase()
+      )
+    ) {
+      setName('');
+      setNumber('');
+      return Notify.warning(`${name} is already in contacts list!`);
+    } else {
+      dispatch(addContact(name, number));
+    }
 
-    reset();
-  };
-
-  const reset = () => {
     setName('');
     setNumber('');
   };
 
   return (
-    <form onSubmit={handleSubmit} className={s.form}>
+    <form onSubmit={onAddNewContact} className={s.form}>
       <label htmlFor="username" className={s.label}>
         Name
       </label>
@@ -53,16 +69,23 @@ const ContactForm = ({ addContact }) => {
         required
       />
 
-      <button type="submit" className={s.btn}>
+      <button
+        type="submit"
+        className={s.btn}
+        // disabled={contacts.length >= 4}
+      >
         Add contact
       </button>
     </form>
   );
 };
-// }
-
-ContactForm.propTypes = {
-  addContact: PropTypes.func.isRequired,
-};
 
 export default ContactForm;
+
+// const mapStateToProps = state => ({
+//   contacts: getContactsList(state),
+// });
+
+// const mapDispatchToProps = { dispatchAddContacts: addContact };
+
+// export default connect(mapStateToProps, mapDispatchToProps)(ContactAdd);
