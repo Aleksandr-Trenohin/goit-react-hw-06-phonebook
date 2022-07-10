@@ -1,45 +1,25 @@
-import { ADD_CONTACT, REMOVE_CONTACT, FILTER_LIST } from './action-types';
+import { createReducer } from '@reduxjs/toolkit';
+
+import { addContact, removeContact, filterList } from './actions';
 
 const initialState = {
   items: [],
   filter: '',
 };
 
-const reducer = (state = initialState, action) => {
-  switch (action.type) {
-    case ADD_CONTACT: {
+const reducer = createReducer(initialState, builder => {
+  builder
+    .addCase(addContact, (state, action) => {
       const { id, name, number } = action.payload;
-      return {
-        ...state,
-        items: [
-          ...state.items,
-          {
-            id,
-            name,
-            number,
-          },
-        ],
-      };
-    }
-    case REMOVE_CONTACT: {
-      const { id } = action.payload;
-      return {
-        ...state,
-        items: state.items.filter(item => item.id !== id),
-      };
-    }
-
-    case FILTER_LIST: {
-      const { filter } = action.payload;
-      return {
-        ...state,
-        filter: filter,
-      };
-    }
-    default: {
-      return state;
-    }
-  }
-};
+      state.items.push({ id, name, number });
+    })
+    .addCase(removeContact, (state, { payload }) => {
+      const index = state.items.findIndex(item => item.id === payload);
+      state.items.splice(index, 1);
+    })
+    .addCase(filterList, (state, action) => {
+      state.filter = action.payload;
+    });
+});
 
 export default reducer;

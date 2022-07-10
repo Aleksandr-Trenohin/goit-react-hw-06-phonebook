@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
-// import { connect } from 'react-redux';
 import { useSelector, useDispatch } from 'react-redux';
 
 import s from './ContactForm.module.css';
 
 import { Notify } from 'notiflix';
+import { nanoid } from 'nanoid';
 
 import { addContact } from 'redux/contacts/actions';
 import { getContactsList } from 'redux/contacts/selectors';
@@ -30,7 +30,13 @@ const ContactForm = () => {
       setNumber('');
       return Notify.warning(`${name} is already in contacts list!`);
     } else {
-      dispatch(addContact(name, number));
+      dispatch(
+        addContact({
+          id: nanoid(),
+          name,
+          number,
+        })
+      );
     }
 
     setName('');
@@ -69,11 +75,7 @@ const ContactForm = () => {
         required
       />
 
-      <button
-        type="submit"
-        className={s.btn}
-        // disabled={contacts.length >= 4}
-      >
+      <button type="submit" className={s.btn}>
         Add contact
       </button>
     </form>
@@ -81,11 +83,3 @@ const ContactForm = () => {
 };
 
 export default ContactForm;
-
-// const mapStateToProps = state => ({
-//   contacts: getContactsList(state),
-// });
-
-// const mapDispatchToProps = { dispatchAddContacts: addContact };
-
-// export default connect(mapStateToProps, mapDispatchToProps)(ContactAdd);
